@@ -1,0 +1,28 @@
+service: pgbouncer-registry
+useDotenv: true
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'dev'}
+  region: 'sa-east-1'
+  profile: default
+
+resources:
+  Resources:
+    PgBouncerRepository: 
+      Type: AWS::ECR::Repository
+      Properties: 
+        RepositoryName: ${self:provider.stage}-pgbouncer
+  Outputs:
+    PgBouncerRepositoryUrl:
+      Description: PgBouncer Repository Url
+      Value: !GetAtt PgBouncerRepository.RepositoryUri
+      Export:
+        Name: ${self:provider.stage}-PgBouncerRepositoryUrl
+
+custom:
+  schema: pgbouncer
+  stackName: '#{AWS::StackName}'
+  prune:
+    automatic: true
+    number: 10
